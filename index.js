@@ -5,6 +5,7 @@ import fetch from "node-fetch";
 import FormData from "form-data";
 import multer from "multer";
 import cors from "cors";
+import computeStringSimilarity from "./levenshtein.js";
 const upload = multer();
 
 const app = express();
@@ -29,8 +30,13 @@ app.post("/transcribe", upload.single("audio"), async (req, res) => {
       body: formData,
     });
 
-    const result = await response.json();
-    res.json(result);
+    const resTxt = await response.json();
+    res.json(
+      computeStringSimilarity(
+        "This is my family. I live in a city.",
+        resTxt.text
+      )
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to transcribe audio file." });
